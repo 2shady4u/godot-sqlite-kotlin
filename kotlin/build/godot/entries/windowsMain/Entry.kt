@@ -29,16 +29,16 @@ fun NativeScriptInit(handle: COpaquePointer) {
     godot_wrapper_nativescript_init(handle)
 
     // Let's do some registration magic.
-    registerClass("sqlite.Sqlite", "Node", udcBridge0(), udcBridge1())
-    registerMethod("sqlite.Sqlite", "_ready", udcBridge2())
-    registerMethod("sqlite.Sqlite", "openDatabase", udcBridge3())
-    registerMethod("sqlite.Sqlite", "__yieldSignalListener", udcBridge4())
+    registerClass("godot_kotlin_sqlite.gdsqlite", "Reference", udcBridge0(), udcBridge1())
+    registerMethod("godot_kotlin_sqlite.gdsqlite", "getVersion", udcBridge2())
+    registerMethod("godot_kotlin_sqlite.gdsqlite", "openDatabase", udcBridge3())
+    registerMethod("godot_kotlin_sqlite.gdsqlite", "__yieldSignalListener", udcBridge4())
 }
 
 
 
 // Bindings
-private fun udcBinding0Constructor(): sqlite.Sqlite = sqlite.Sqlite()
+private fun udcBinding0Constructor(): godot_kotlin_sqlite.gdsqlite = godot_kotlin_sqlite.gdsqlite()
 private val udcBinding0 = ::udcBinding0Constructor
 
 
@@ -48,34 +48,34 @@ private fun udcBridge0(): CPointer<CFunction<(COpaquePointer?) -> COpaquePointer
     return staticCFunction { mem -> constructFromRawMem(mem, udcBinding0) }
 }
 private fun udcBridge1(): CPointer<CFunction<(COpaquePointer?) -> Unit>> {
-    return staticCFunction { mem -> deconstructFromRawMem<sqlite.Sqlite>(mem) }
+    return staticCFunction { mem -> deconstructFromRawMem<godot_kotlin_sqlite.gdsqlite>(mem) }
 }
 private fun udcBridge2(): CPointer<CFunction<(COpaquePointer?, COpaquePointer?, Int, COpaquePointer?) -> Unit>> {
-    return staticCFunction { r, o, n, a -> invoke<sqlite.Sqlite>("_ready", r, o, n, a) { obj, numArgs, args -> run {
+    return staticCFunction { r, o, n, a -> invoke<godot_kotlin_sqlite.gdsqlite>("getVersion", r, o, n, a) { obj, numArgs, args -> run {
         when (numArgs) {
             0 -> {
-                obj._ready()
+                return@run Variant from obj.getVersion()
             }
-            else -> noMethodToInvoke("_ready", "sqlite.Sqlite", numArgs)
+            else -> noMethodToInvoke("getVersion", "godot_kotlin_sqlite.gdsqlite", numArgs)
         }
         return@run null
     }}}
 }
 
 private fun udcBridge3(): CPointer<CFunction<(COpaquePointer?, COpaquePointer?, Int, COpaquePointer?) -> Unit>> {
-    return staticCFunction { r, o, n, a -> invoke<sqlite.Sqlite>("openDatabase", r, o, n, a) { obj, numArgs, args -> run {
+    return staticCFunction { r, o, n, a -> invoke<godot_kotlin_sqlite.gdsqlite>("openDatabase", r, o, n, a) { obj, numArgs, args -> run {
         when (numArgs) {
             0 -> {
                 return@run Variant from obj.openDatabase()
             }
-            else -> noMethodToInvoke("openDatabase", "sqlite.Sqlite", numArgs)
+            else -> noMethodToInvoke("openDatabase", "godot_kotlin_sqlite.gdsqlite", numArgs)
         }
         return@run null
     }}}
 }
 
 private fun udcBridge4(): CPointer<CFunction<(COpaquePointer?, COpaquePointer?, Int, COpaquePointer?) -> Unit>> {
-    return staticCFunction { r, o, n, a -> invoke<sqlite.Sqlite>("__yieldSignalListener", r, o, n, a) { obj, numArgs, args -> run {
+    return staticCFunction { r, o, n, a -> invoke<godot_kotlin_sqlite.gdsqlite>("__yieldSignalListener", r, o, n, a) { obj, numArgs, args -> run {
         args!!
         val varargs = Array(numArgs) { i -> Variant(args[i]!!) }
         obj.__yieldSignalListener(*varargs)

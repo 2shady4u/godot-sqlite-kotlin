@@ -1,15 +1,16 @@
 {
-  "package": "Scripts",
+  "package": "addons/godot-kotlin-sqlite/bin",
 
   "registerClasses": [
     {
-      "name": "Sqlite",
-      "class": "sqlite.Sqlite",
-      "extends": "Node",
+      "name": "gdsqlite",
+      "class": "godot_kotlin_sqlite.gdsqlite",
+      "extends": "Reference",
       "methods": [
         {
-          "name": "_ready",
-          "arguments": []
+          "name": "getVersion",
+          "arguments": [],
+          "returnType": "String"
         },
         {
           "name": "openDatabase",

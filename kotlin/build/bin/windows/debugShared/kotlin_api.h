@@ -52,7 +52,7 @@ typedef struct {
 } kotlin_kref_kotlin_Unit;
 typedef struct {
   kotlin_KNativePtr pinned;
-} kotlin_kref_sqlite_Sqlite;
+} kotlin_kref_godot_kotlin_sqlite_gdsqlite;
 
 extern void godot_gdnative_init(void* options);
 extern void godot_gdnative_terminate(void* options);
@@ -78,6 +78,14 @@ typedef struct {
     struct {
       struct {
         struct {
+          kotlin_KType* (*_type)(void);
+          kotlin_kref_godot_kotlin_sqlite_gdsqlite (*gdsqlite)();
+          const char* (*getVersion)(kotlin_kref_godot_kotlin_sqlite_gdsqlite thiz);
+          kotlin_KBoolean (*openDatabase)(kotlin_kref_godot_kotlin_sqlite_gdsqlite thiz);
+        } gdsqlite;
+      } godot_kotlin_sqlite;
+      struct {
+        struct {
           struct {
             void (*GDNativeInit)(void* options);
             void (*GDNativeTerminate)(void* options);
@@ -85,14 +93,6 @@ typedef struct {
           } entry;
         } godot;
       } kotlin;
-      struct {
-        struct {
-          kotlin_KType* (*_type)(void);
-          kotlin_kref_sqlite_Sqlite (*Sqlite)();
-          void (*_ready)(kotlin_kref_sqlite_Sqlite thiz);
-          kotlin_KBoolean (*openDatabase)(kotlin_kref_sqlite_Sqlite thiz);
-        } Sqlite;
-      } sqlite;
     } root;
   } kotlin;
 } kotlin_ExportedSymbols;
