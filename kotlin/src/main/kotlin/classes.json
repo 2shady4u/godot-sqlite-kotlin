@@ -1,0 +1,22 @@
+{
+  "package": "Scripts",
+
+  "registerClasses": [
+    {
+      "name": "Sqlite",
+      "class": "sqlite.Sqlite",
+      "extends": "Node",
+      "methods": [
+        {
+          "name": "_ready",
+          "arguments": []
+        },
+        {
+          "name": "openDatabase",
+          "arguments": [],
+          "returnType": "Boolean"
+        }
+      ]
+    }
+  ]
+}
