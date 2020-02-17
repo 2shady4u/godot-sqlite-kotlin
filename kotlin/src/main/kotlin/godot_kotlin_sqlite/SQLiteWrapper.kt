@@ -5,7 +5,43 @@ import godot.ProjectSettings
 import godot.core.*
 import kotlinx.cinterop.*
 import sqlite3.*
-import kotlin.jvm.JvmStatic
+
+fun callback(closure: COpaquePointer?, argc: Int, argv: CPointer<CPointerVar<ByteVar>>?, azColName: CPointer<CPointerVar<ByteVar>>?): Int {
+
+    var columnDict = Dictionary()
+    /* Get a reference to the instanced object */
+    val stableRef = closure?.asStableRef<SQLiteWrapper>()
+    val obj = stableRef?.get()
+    var stmt: CPointer<sqlite3_stmt>? = sqlite3_next_stmt(obj?.db, null)
+    var columnValue: Variant
+
+    /* Loop over all columns and add them to the Dictionary */
+    for (i in 0..argc) {
+        /* Check the column type and do correct casting */
+        columnValue = when (sqlite3_column_type(stmt, i)) {
+            SQLITE_INTEGER -> {
+                Variant(sqlite3_column_int64(stmt, i).toInt())
+            }
+            SQLITE_FLOAT -> {
+                Variant(sqlite3_column_double(stmt, i))
+            }
+            SQLITE_TEXT -> {
+                Variant(sqlite3_column_text (stmt, i).toString())
+            }
+            else -> {
+                Variant(sqlite3_column_text (stmt, i).toString())
+            }
+        }
+        //columnDict[azColName[i].toString()] = columnValue
+    }
+    /* Add result to query_result Array */
+    obj?.query_result?.append(Variant(columnDict))
+
+    /* cleanup! */
+    stableRef?.dispose()
+    return 0
+
+}
 
 class SQLiteWrapper : Reference {
     constructor() : super()
@@ -67,45 +103,6 @@ class SQLiteWrapper : Reference {
         }
     }
 
-    class CompanionClass {
-    companion object CallMeMaybe {
-        @JvmStatic val callback = fun(closure: COpaquePointer?, argc: Int, argv: CPointer<CPointerVar<ByteVar>>?, azColName: CPointer<CPointerVar<ByteVar>>?): Int {
-
-        var columnDict = Dictionary()
-        /* Get a reference to the instanced object */
-        val stableRef = closure?.asStableRef<SQLiteWrapper>()
-        val obj = stableRef?.get()
-        var stmt: CPointer<sqlite3_stmt>? = sqlite3_next_stmt(obj?.db, null)
-        var columnValue: Variant
-
-        /* Loop over all columns and add them to the Dictionary */
-        for (i in 0..argc) {
-            /* Check the column type and do correct casting */
-            columnValue = when (sqlite3_column_type(stmt, i)) {
-                SQLITE_INTEGER -> {
-                    Variant(sqlite3_column_int64(stmt, i).toInt())
-                }
-                SQLITE_FLOAT -> {
-                    Variant(sqlite3_column_double(stmt, i))
-                }
-                SQLITE_TEXT -> {
-                    Variant(sqlite3_column_text (stmt, i).toString())
-                }
-                else -> {
-                    Variant(sqlite3_column_text (stmt, i).toString())
-                }
-            }
-            //columnDict[azColName[i].toString()] = columnValue
-        }
-        /* Add result to query_result Array */
-        obj?.query_result?.append(Variant(columnDict))
-
-        /* cleanup! */
-        stableRef?.dispose()
-        return 0
-
-    }}}
-
     fun query(p_query : String) : Boolean {
         var zErrMsg : CPointer<ByteVar>? = null
         var rc = 0
@@ -122,7 +119,7 @@ class SQLiteWrapper : Reference {
         /* Execute SQL statement */
         memScoped {
             val q: CPointerVar<ByteVar> = alloc()
-            rc = sqlite3_exec(db, p_query, staticCFunction(CompanionClass.callback), voidptr, q.ptr)
+            rc = sqlite3_exec(db, p_query, staticCFunction(::callback), voidptr, q.ptr)
             zErrMsg = q.value
         }
         /* cleanup! */

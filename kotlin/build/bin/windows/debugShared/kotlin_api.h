@@ -80,6 +80,7 @@ typedef struct {
   struct {
     struct {
       struct {
+        kotlin_KInt (*callback)(void* closure, kotlin_KInt argc, void* argv, void* azColName);
         struct {
           kotlin_KType* (*_type)(void);
           kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper (*SQLiteWrapper)();
