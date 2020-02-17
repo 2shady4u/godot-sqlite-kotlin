@@ -44,7 +44,7 @@ kotlin {
                     kotlin.srcDirs("src/main/kotlin")
                 }
 
-                libraryPath("gdsqlite.gdnlib")
+                libraryPath("addons/godot-kotlin-sqlite/bin/SQLiteWrapper.gdnlib")
                 generateGDNS("${project.rootDir.absolutePath}/../demo")
 
                 configs(

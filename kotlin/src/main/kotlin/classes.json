@@ -3,8 +3,8 @@
 
   "registerClasses": [
     {
-      "name": "gdsqlite",
-      "class": "godot_kotlin_sqlite.gdsqlite",
+      "name": "SQLiteWrapper",
+      "class": "godot_kotlin_sqlite.SQLiteWrapper",
       "extends": "Reference",
       "methods": [
         {
@@ -16,6 +16,27 @@
           "name": "openDatabase",
           "arguments": [],
           "returnType": "Boolean"
+        },
+        {
+          "name": "closeDatabase",
+          "arguments": []
+        },
+        {
+          "name": "query",
+          "arguments": ["String"],
+          "returnType": "Boolean"
+        }
+      ],
+      "properties": [
+        {
+          "name": "verbose_mode",
+          "type": "Boolean",
+          "defaultValue ": false
+        },
+        {
+          "name": "path",
+          "type": "String",
+          "defaultValue ": "default"
         }
       ]
     }

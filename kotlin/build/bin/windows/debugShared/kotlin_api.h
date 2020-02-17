@@ -52,7 +52,10 @@ typedef struct {
 } kotlin_kref_kotlin_Unit;
 typedef struct {
   kotlin_KNativePtr pinned;
-} kotlin_kref_godot_kotlin_sqlite_gdsqlite;
+} kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper;
+typedef struct {
+  kotlin_KNativePtr pinned;
+} kotlin_kref_godot_core_GDArray;
 
 extern void godot_gdnative_init(void* options);
 extern void godot_gdnative_terminate(void* options);
@@ -79,10 +82,21 @@ typedef struct {
       struct {
         struct {
           kotlin_KType* (*_type)(void);
-          kotlin_kref_godot_kotlin_sqlite_gdsqlite (*gdsqlite)();
-          const char* (*getVersion)(kotlin_kref_godot_kotlin_sqlite_gdsqlite thiz);
-          kotlin_KBoolean (*openDatabase)(kotlin_kref_godot_kotlin_sqlite_gdsqlite thiz);
-        } gdsqlite;
+          kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper (*SQLiteWrapper)();
+          void* (*get_db)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
+          void (*set_db)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, void* set);
+          const char* (*get_error_message)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
+          void (*set_error_message)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* set);
+          const char* (*get_path)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
+          void (*set_path)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* set);
+          kotlin_kref_godot_core_GDArray (*get_query_result)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
+          kotlin_KBoolean (*get_verbose_mode)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
+          void (*set_verbose_mode)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, kotlin_KBoolean set);
+          void (*closeDatabase)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
+          const char* (*getVersion)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
+          kotlin_KBoolean (*openDatabase)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
+          kotlin_KBoolean (*query)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* p_query);
+        } SQLiteWrapper;
       } godot_kotlin_sqlite;
       struct {
         struct {

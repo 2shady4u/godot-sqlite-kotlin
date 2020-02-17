@@ -1,13 +1,20 @@
 extends Node2D
 
-const XXX = preload("res://addons/godot-kotlin-sqlite/bin/gdsqlite.gdns")
+const SQLite = preload("res://addons/godot-kotlin-sqlite/bin/SQLiteWrapper.gdns")
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	
-	var YYY = XXX.new()
+	var db = SQLite.new()
 	
-	print(YYY.getVersion())
+	db.verbose_mode = true
+	db.path = "database"
 	
-#	print(YYY.openDatabase())
+	print(db.getVersion())
+	
+	print(db.openDatabase())
+	
+	db.query("uuuu")
+	
+	db.closeDatabase()
