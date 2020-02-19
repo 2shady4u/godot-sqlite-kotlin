@@ -26,10 +26,10 @@ fun callback(closure: COpaquePointer?, argc: Int, argv: CPointer<CPointerVar<Byt
                 Variant(sqlite3_column_double(stmt, i))
             }
             SQLITE_TEXT -> {
-                Variant(sqlite3_column_text (stmt, i)?.pointed?.value.toString())
+                sqlite3_column_text (stmt, i)?.reinterpret<ByteVar>()?.toKString()?.let { Variant(it) }!!
             }
             else -> {
-                Variant(sqlite3_column_text (stmt, i)?.pointed?.value.toString())
+                sqlite3_column_text (stmt, i)?.reinterpret<ByteVar>()?.toKString()?.let { Variant(it) }!!
             }
         }
 
