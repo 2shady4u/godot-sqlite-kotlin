@@ -37,6 +37,11 @@
           "name": "path",
           "type": "String",
           "defaultValue ": "default"
+        },
+        {
+          "name": "query_result",
+          "type": "GDArray",
+          "defaultValue ": []
         }
       ]
     }

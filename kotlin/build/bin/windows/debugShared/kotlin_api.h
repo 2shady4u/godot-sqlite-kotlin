@@ -91,6 +91,7 @@ typedef struct {
           const char* (*get_path)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
           void (*set_path)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* set);
           kotlin_kref_godot_core_GDArray (*get_query_result)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
+          void (*set_query_result)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, kotlin_kref_godot_core_GDArray set);
           kotlin_KBoolean (*get_verbose_mode)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
           void (*set_verbose_mode)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, kotlin_KBoolean set);
           void (*closeDatabase)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);

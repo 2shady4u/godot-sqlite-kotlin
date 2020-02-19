@@ -16,7 +16,7 @@ fun callback(closure: COpaquePointer?, argc: Int, argv: CPointer<CPointerVar<Byt
     var columnValue: Variant
 
     /* Loop over all columns and add them to the Dictionary */
-    for (i in 0..argc) {
+    for (i in 0 until argc) {
         /* Check the column type and do correct casting */
         columnValue = when (sqlite3_column_type(stmt, i)) {
             SQLITE_INTEGER -> {
@@ -26,13 +26,15 @@ fun callback(closure: COpaquePointer?, argc: Int, argv: CPointer<CPointerVar<Byt
                 Variant(sqlite3_column_double(stmt, i))
             }
             SQLITE_TEXT -> {
-                Variant(sqlite3_column_text (stmt, i).toString())
+                Variant(sqlite3_column_text (stmt, i)?.pointed?.value.toString())
             }
             else -> {
-                Variant(sqlite3_column_text (stmt, i).toString())
+                Variant(sqlite3_column_text (stmt, i)?.pointed?.value.toString())
             }
         }
-        //columnDict[azColName[i].toString()] = columnValue
+
+        //column_dict[String(azColName[i])] = column_value;
+        columnDict[azColName?.get(i)?.toKString()?.let { Variant(it) }!!] = columnValue
     }
     /* Add result to query_result Array */
     obj?.query_result?.append(Variant(columnDict))
@@ -50,7 +52,7 @@ class SQLiteWrapper : Reference {
     var path : String = "default"
     var error_message : String = ""
     var verbose_mode : Boolean = false
-    val query_result : GDArray = GDArray()
+    var query_result : GDArray = GDArray()
 
     fun getVersion() : String {
         return "Hello Godot!, My version is " + sqlite3_libversion_number().toString()
@@ -125,7 +127,7 @@ class SQLiteWrapper : Reference {
         /* cleanup! */
         stableRef.dispose()
 
-        error_message = zErrMsg.toString();
+        error_message = zErrMsg?.toKString().toString()
         if (rc != SQLITE_OK)
         {
             GD.print(" --> SQL error: $error_message")

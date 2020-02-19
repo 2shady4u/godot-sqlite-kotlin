@@ -37,6 +37,7 @@ fun NativeScriptInit(handle: COpaquePointer) {
     registerMethod("godot_kotlin_sqlite.SQLiteWrapper", "__yieldSignalListener", udcBridge6())
     registerProperty("godot_kotlin_sqlite.SQLiteWrapper", "verbose_mode", true, udcBridge7(), udcBridge8(), udcBridge9())
     registerProperty("godot_kotlin_sqlite.SQLiteWrapper", "path", true, udcBridge10(), udcBridge11(), udcBridge12())
+    registerProperty("godot_kotlin_sqlite.SQLiteWrapper", "query_result", true, udcBridge13(), udcBridge14(), udcBridge15())
 }
 
 
@@ -138,4 +139,17 @@ private fun udcBridge11(): CPointer<CFunction<(COpaquePointer?,COpaquePointer?) 
 }
 private fun udcBridge12(): Variant {
     return Variant("")
+}
+private fun udcBridge13(): CPointer<CFunction<(COpaquePointer?,COpaquePointer?) -> Unit>> {
+    return staticCFunction { o, r -> get<godot_kotlin_sqlite.SQLiteWrapper>("query_result", "godot_kotlin_sqlite.SQLiteWrapper", o, r) {
+        obj -> Variant(obj.query_result)
+    }}
+}
+private fun udcBridge14(): CPointer<CFunction<(COpaquePointer?,COpaquePointer?) -> Unit>> {
+    return staticCFunction { o, v -> set<godot_kotlin_sqlite.SQLiteWrapper>("query_result", "godot_kotlin_sqlite.SQLiteWrapper", o, v) {
+        obj, value -> obj.query_result = value.toGDArray()
+    }}
+}
+private fun udcBridge15(): Variant {
+    return Variant()
 }
