@@ -10,9 +10,15 @@ func _ready():
 	var db = SQLite.new()
 	
 	db.verbose_mode = true
-	db.path = "database"
+	db.path = "res://database.db"
 	
 	print(db.getVersion())
+	
+	var file : File = File.new()
+	if file.file_exists("res://database.db"):
+		print("file exists!")
+	else:
+		print("file doesnt exist!")
 	
 	print(db.openDatabase())
 	
@@ -30,8 +36,8 @@ func _ready():
 	_label.text = to_json(saved_query)
 	
 	print(saved_query)
-	print(typeof(saved_query[0].balance))
-	print(typeof(saved_query[0].name))
-	print(typeof(saved_query[0].contact_id))
+#	print(typeof(saved_query[0].balance))
+#	print(typeof(saved_query[0].name))
+#	print(typeof(saved_query[0].contact_id))
 	
 	db.closeDatabase()

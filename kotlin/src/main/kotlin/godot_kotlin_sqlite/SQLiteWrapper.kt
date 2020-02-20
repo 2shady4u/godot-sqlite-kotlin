@@ -7,6 +7,7 @@ import kotlinx.cinterop.*
 import sqlite3.*
 
 fun callback(closure: COpaquePointer?, argc: Int, argv: CPointer<CPointerVar<ByteVar>>?, azColName: CPointer<CPointerVar<ByteVar>>?): Int {
+    GD.print("Inside of callback")
 
     var columnDict = Dictionary()
     /* Get a reference to the instanced object */
@@ -59,7 +60,7 @@ class SQLiteWrapper : Reference {
     }
 
     fun openDatabase() : Boolean {
-        var rc = 0
+        var rc = -1
         /* Add .db to the path String if not present */
         val ending = ".db"
         if (path != ":memory:" && !path.endsWith(ending))
@@ -69,6 +70,8 @@ class SQLiteWrapper : Reference {
         /* Find the real path */
         path = ProjectSettings.globalizePath(path.trim())
 
+        GD.print("The database path is $path")
+
         /* Try to open the database */
         /* CValuesRef needs to be created for this purpose... */
         memScoped {
@@ -77,9 +80,10 @@ class SQLiteWrapper : Reference {
             db = q.value
         }
 
-        if (rc == 1)
+        if (rc != SQLITE_OK)
         {
-            GD.print("GDSQLite Error: Can't open database: " + sqlite3_errmsg(db).toString());
+            GD.print("GDSQLite Error: Can't open database: " + sqlite3_errmsg(db)?.toKString()!!);
+            db = null
             return false
         }
         else {

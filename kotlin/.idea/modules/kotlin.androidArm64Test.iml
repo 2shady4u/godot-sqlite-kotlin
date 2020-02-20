@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4">
+  <component name="FacetManager">
+    <facet type="kotlin-language" name="Kotlin">
+      <configuration version="3" platform="Native " allPlatforms="Native []" useProjectSettings="false" isTestModule="true" externalProjectId="kotlin">
+        <dependsOnModuleNames>kotlin_commonTest</dependsOnModuleNames>
+        <sourceSets>
+          <sourceSet>kotlin.commonTest</sourceSet>
+          <sourceSet>kotlin.commonMain</sourceSet>
+          <sourceSet>kotlin.androidArm64Main</sourceSet>
+        </sourceSets>
+        <newMppModelJpsModuleKind>COMPILATION_AND_SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
+        <compilerSettings />
+        <compilerArguments>
+          <option name="languageVersion" value="1.3" />
+          <option name="apiVersion" value="1.3" />
+          <option name="pluginOptions">
+            <array />
+          </option>
+          <option name="pluginClasspaths">
+            <array>
+              <option value="$MAVEN_REPOSITORY$/org/godotengine/kotlin/kotlin-compiler-native-plugin/0.0.1-SNAPSHOT/kotlin-compiler-native-plugin-0.0.1-SNAPSHOT.jar" />
+            </array>
+          </option>
+          <option name="multiPlatform" value="true" />
+          <option name="errors">
+            <ArgumentParseErrors />
+          </option>
+        </compilerArguments>
+      </configuration>
+    </facet>
+  </component>
+</module>
