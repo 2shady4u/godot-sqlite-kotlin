@@ -6,8 +6,8 @@
         <dependsOnModuleNames>kotlin_commonTest</dependsOnModuleNames>
         <sourceSets>
           <sourceSet>kotlin.windowsMain</sourceSet>
-          <sourceSet>kotlin.commonMain</sourceSet>
           <sourceSet>kotlin.commonTest</sourceSet>
+          <sourceSet>kotlin.commonMain</sourceSet>
         </sourceSets>
         <newMppModelJpsModuleKind>COMPILATION_AND_SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
         <compilerSettings />

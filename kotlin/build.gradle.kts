@@ -80,7 +80,7 @@ kotlin {
                 println("Configuring target ${this.target.name}")
                 cinterops {
                     create("SQLite") {
-                        defFile("src/main/c_interop/sqlite.def")
+                        defFile("src/main/c_interop/sqlite3.def")
                         includeDirs("src/main/c_interop")
                     }
                 }
