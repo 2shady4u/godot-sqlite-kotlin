@@ -7,7 +7,7 @@
         <sourceSets>
           <sourceSet>kotlin.commonTest</sourceSet>
           <sourceSet>kotlin.commonMain</sourceSet>
-          <sourceSet>kotlin.androidArm64Main</sourceSet>
+          <sourceSet>kotlin.windowsMain</sourceSet>
         </sourceSets>
         <newMppModelJpsModuleKind>COMPILATION_AND_SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
         <compilerSettings />

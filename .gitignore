@@ -43,3 +43,4 @@ vsproj/gdsqlite.vcxproj.*
 
 .vscode
 kotlin/gradle.properties
+builds
