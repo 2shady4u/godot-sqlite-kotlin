@@ -7,13 +7,11 @@ import kotlinx.cinterop.*
 import sqlite3.*
 
 fun callback(closure: COpaquePointer?, argc: Int, argv: CPointer<CPointerVar<ByteVar>>?, azColName: CPointer<CPointerVar<ByteVar>>?): Int {
-    GD.print("Inside of callback")
-
-    var columnDict = Dictionary()
+    val columnDictionary = Dictionary()
     /* Get a reference to the instanced object */
     val stableRef = closure?.asStableRef<SQLiteWrapper>()
     val obj = stableRef?.get()
-    var stmt: CPointer<sqlite3_stmt>? = sqlite3_next_stmt(obj?.db, null)
+    val stmt: CPointer<sqlite3_stmt>? = sqlite3_next_stmt(obj?.db, null)
     var columnValue: Variant
 
     /* Loop over all columns and add them to the Dictionary */
@@ -33,31 +31,25 @@ fun callback(closure: COpaquePointer?, argc: Int, argv: CPointer<CPointerVar<Byt
                 sqlite3_column_text (stmt, i)?.reinterpret<ByteVar>()?.toKString()?.let { Variant(it) }!!
             }
         }
-
-        //column_dict[String(azColName[i])] = column_value;
-        columnDict[azColName?.get(i)?.toKString()?.let { Variant(it) }!!] = columnValue
+        columnDictionary[azColName?.get(i)?.toKString()?.let { Variant(it) }!!] = columnValue
     }
     /* Add result to query_result Array */
-    obj?.query_result?.append(Variant(columnDict))
+    obj?.queryResult?.append(Variant(columnDictionary))
 
     /* cleanup! */
     stableRef?.dispose()
-    return 0
 
+    return 0
 }
 
-class SQLiteWrapper : Reference {
-    constructor() : super()
+class SQLiteWrapper() : Reference() {
 
     var db : CPointer<sqlite3>? = null
     var path : String = "default"
-    var error_message : String = ""
-    var verbose_mode : Boolean = false
-    var query_result : GDArray = GDArray()
-
-    fun getVersion() : String {
-        return "Hello Godot!, My version is " + sqlite3_libversion_number().toString()
-    }
+    var errorMessage : String = ""
+    var verboseMode : Boolean = false
+    var foreignKeys : Boolean = false
+    var queryResult : GDArray = GDArray()
 
     fun openDatabase() : Boolean {
         var rc = -1
@@ -70,8 +62,6 @@ class SQLiteWrapper : Reference {
         /* Find the real path */
         path = ProjectSettings.globalizePath(path.trim())
 
-        GD.print("The database path is $path")
-
         /* Try to open the database */
         /* CValuesRef needs to be created for this purpose... */
         memScoped {
@@ -82,12 +72,29 @@ class SQLiteWrapper : Reference {
 
         if (rc != SQLITE_OK)
         {
-            GD.print("GDSQLite Error: Can't open database: " + sqlite3_errmsg(db)?.toKString()!!);
+            GD.print("GDSQLite Error: Can't open database: " + sqlite3_errmsg(db)?.toKString()!!)
             db = null
             return false
         }
         else {
             GD.print("Opened database successfully ($path)")
+        }
+
+        /* Try to enable foreign keys. */
+        if (foreignKeys)
+        {
+            var zErrMsg : CPointer<ByteVar>? = null
+            memScoped {
+                val q: CPointerVar<ByteVar> = alloc()
+                rc = sqlite3_exec(db, "PRAGMA foreign_keys=on;", null, null, q.ptr)
+                zErrMsg = q.value
+            }
+            if (rc != SQLITE_OK)
+            {
+                GD.print("GDSQLite Error: Can't enable foreign keys: " + zErrMsg?.toKString().toString())
+                sqlite3_free(zErrMsg)
+                return false
+            }
         }
 
         return true
@@ -109,39 +116,241 @@ class SQLiteWrapper : Reference {
         }
     }
 
-    fun query(p_query : String) : Boolean {
+    fun query(queryString : String) : Boolean {
         var zErrMsg : CPointer<ByteVar>? = null
-        var rc = 0
+        var rc = -1
 
-        if (verbose_mode)
+        GD.print("inside 1")
+
+        if (verboseMode)
         {
-            GD.print(p_query);
+            GD.print(queryString)
         }
         /* Clear the previous query results */
-        query_result.clear()
+        queryResult.clear()
 
         val stableRef = StableRef.create(this)
-        val voidptr = stableRef.asCPointer()
+        val voidPointer = stableRef.asCPointer()
         /* Execute SQL statement */
         memScoped {
             val q: CPointerVar<ByteVar> = alloc()
-            rc = sqlite3_exec(db, p_query, staticCFunction(::callback), voidptr, q.ptr)
+            rc = sqlite3_exec(db, queryString, staticCFunction(::callback), voidPointer, q.ptr)
             zErrMsg = q.value
         }
         /* cleanup! */
         stableRef.dispose()
 
-        error_message = zErrMsg?.toKString().toString()
+        errorMessage = zErrMsg?.toKString().toString()
         if (rc != SQLITE_OK)
         {
-            GD.print(" --> SQL error: $error_message")
+            GD.print(" --> SQL error: $errorMessage")
             sqlite3_free(zErrMsg)
             return false
         }
-        else if (verbose_mode)
+        else if (verboseMode)
         {
             GD.print(" --> Query succeeded")
         }
         return true
     }
+
+    fun createTable(tableName : String, tableDictionary : Dictionary) : Boolean {
+        var typeString : String
+        val integerTypeString = "int"
+        /* Create SQL statement */
+        var queryString = "CREATE TABLE IF NOT EXISTS $tableName ("
+
+        var columnDictionary : Dictionary
+        val columns : GDArray = tableDictionary.keys
+        val numberOfColumns : Int = columns.size()
+        for (i in 0 until numberOfColumns) {
+            columnDictionary = tableDictionary[columns[i]!!]?.toDictionary()!!
+            if (!columnDictionary.has("data_type"))
+            {
+                GD.print("GDSQLite Error: The field 'data_type' is a required part of the table dictionary")
+                return false
+            }
+            queryString += "" + columns[i] + " "
+            typeString = columnDictionary["data_type"].toString()
+            queryString += if (typeString.toLowerCase().startsWith(integerTypeString)) {
+                "INTEGER"
+            } else {
+                typeString
+            }
+            /* Primary key check */
+            if (columnDictionary["primary_key", false]?.toBoolean()!!)
+            {
+                queryString += " PRIMARY KEY"
+            }
+            /* Default check */
+            if (columnDictionary.has("default"))
+            {
+                queryString += " DEFAULT " + columnDictionary["default"]
+            }
+            /* Autoincrement check */
+            if (columnDictionary["auto_increment", false]?.toBoolean()!!)
+            {
+                queryString += " AUTOINCREMENT"
+            }
+            /* Not null check */
+            if (columnDictionary["not_null", false]?.toBoolean()!!)
+            {
+                queryString += " NOT NULL"
+            }
+            /* Apply foreign key constraint. */
+            if (foreignKeys)
+            {
+                if (columnDictionary.has("foreign_key")) {
+                    val definition: String = columnDictionary["foreign_key"].toString()
+                    val elements: List<String> = definition.split(".")
+                    if (elements.size == 2) {
+                        val columnName: String = columns[i].toString()
+                        val foreignKeyTableName: String = elements[0]
+                        val foreignKeyColumnName: String = elements[1]
+                        queryString += ", FOREIGN KEY ($columnName) REFERENCES $foreignKeyTableName($foreignKeyColumnName)"
+                    }
+                }
+            }
+            if (i != numberOfColumns - 1)
+            {
+                queryString += ","
+            }
+        }
+
+        queryString += ");"
+
+        return query(queryString)
+    }
+
+    fun dropTable(tableName : String) : Boolean {
+        /* Create SQL statement */
+        val queryString : String = "DROP TABLE $tableName;"
+
+        return query(queryString)
+    }
+
+    fun insertRow(tableName : String, rowDictionary : Dictionary) : Boolean {
+
+        var keyString = ""
+        var valueString = ""
+        val keys : GDArray = rowDictionary.keys
+        val values : GDArray = rowDictionary.values
+
+        var queryString = "INSERT INTO $tableName"
+
+        val numberOfKeys : Int = rowDictionary.size()
+
+        for (i in 0 until numberOfKeys)
+        {
+            keyString += keys[i]
+            if (values[i]?.getType() == Variant.Type.STRING)
+            {
+                valueString += "'" + values[i] + "'"
+            }
+            else
+            {
+                valueString += values[i]
+            }
+            if (i != numberOfKeys - 1)
+            {
+                keyString += ","
+                valueString += ","
+            }
+        }
+        queryString += " ($keyString) VALUES ($valueString);"
+
+        return query(queryString)
+    }
+
+    fun insertRows(tableName : String, rowArray : GDArray) : Boolean {
+        val numberOfRows : Int = rowArray.size()
+        for (i in 0 until numberOfRows)
+        {
+            if (rowArray[i]?.getType() != Variant.Type.DICTIONARY)
+            {
+                GD.print("GDSQLite Error: All elements of the Array should be of type Dictionary")
+                return false
+            }
+            if (!insertRow(tableName, rowArray[i]?.toDictionary()!!))
+            {
+                return false
+            }
+        }
+        return true
+    }
+
+    fun selectRows(tableName : String, conditions : String, columnsArray : GDArray) : GDArray {
+        val numberOfColumns : Int = columnsArray.size()
+
+        /* Create SQL statement */
+        var queryString = "SELECT "
+        for (i in 0 until numberOfColumns)
+        {
+            if (columnsArray[i]?.getType() != Variant.Type.STRING)
+            {
+                GD.print("GDSQLite Error: All elements of the Array should be of type String")
+                return queryResult
+            }
+            queryString += columnsArray[i].toString()
+
+            if (i != numberOfColumns - 1)
+            {
+                queryString += ","
+            }
+        }
+        queryString += " from $tableName"
+        if (conditions.isNotEmpty())
+        {
+            queryString += " WHERE $conditions"
+        }
+        queryString += ";"
+
+        query(queryString)
+        return queryResult
+    }
+
+    fun updateRows(tableName : String, conditions : String, updatedRowDictionary : Dictionary) : Boolean {
+
+        val numberOfKeys : Int = updatedRowDictionary.size()
+        val keys : GDArray = updatedRowDictionary.keys
+        val values : GDArray = updatedRowDictionary.values
+
+        /* Create SQL statement */
+        var queryString = "UPDATE $tableName SET "
+
+        for (i in 0 until numberOfKeys)
+        {
+            queryString += "" + keys[i] + "="
+            if (values[i]?.getType() == Variant.Type.STRING)
+            {
+                queryString += "'" + values[i] + "'"
+            }
+            else
+            {
+                queryString += values[i]
+            }
+
+            if (i != numberOfKeys - 1)
+            {
+                queryString += ","
+            }
+        }
+        queryString += " WHERE $conditions;"
+
+        return query(queryString)
+    }
+
+    fun deleteRows(tableName : String, conditions : String) : Boolean {
+        /* Create SQL statement */
+        var queryString = "DELETE FROM $tableName"
+        /* If it's empty or * everything is to be deleted */
+        if (conditions.isNotEmpty() && conditions != "*")
+        {
+            queryString += " WHERE $conditions"
+        }
+        queryString += ";"
+
+        return query(queryString)
+    }
+
 }

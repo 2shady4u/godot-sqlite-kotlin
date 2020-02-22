@@ -56,6 +56,9 @@ typedef struct {
 typedef struct {
   kotlin_KNativePtr pinned;
 } kotlin_kref_godot_core_GDArray;
+typedef struct {
+  kotlin_KNativePtr pinned;
+} kotlin_kref_godot_core_Dictionary;
 
 extern void godot_gdnative_init(void* options);
 extern void godot_gdnative_terminate(void* options);
@@ -86,18 +89,26 @@ typedef struct {
           kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper (*SQLiteWrapper)();
           void* (*get_db)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
           void (*set_db)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, void* set);
-          const char* (*get_error_message)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
-          void (*set_error_message)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* set);
+          const char* (*get_errorMessage)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
+          void (*set_errorMessage)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* set);
+          kotlin_KBoolean (*get_foreignKeys)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
+          void (*set_foreignKeys)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, kotlin_KBoolean set);
           const char* (*get_path)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
           void (*set_path)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* set);
-          kotlin_kref_godot_core_GDArray (*get_query_result)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
-          void (*set_query_result)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, kotlin_kref_godot_core_GDArray set);
-          kotlin_KBoolean (*get_verbose_mode)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
-          void (*set_verbose_mode)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, kotlin_KBoolean set);
+          kotlin_kref_godot_core_GDArray (*get_queryResult)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
+          void (*set_queryResult)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, kotlin_kref_godot_core_GDArray set);
+          kotlin_KBoolean (*get_verboseMode)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
+          void (*set_verboseMode)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, kotlin_KBoolean set);
           void (*closeDatabase)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
-          const char* (*getVersion)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
+          kotlin_KBoolean (*createTable)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* tableName, kotlin_kref_godot_core_Dictionary tableDictionary);
+          kotlin_KBoolean (*deleteRows)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* tableName, const char* conditions);
+          kotlin_KBoolean (*dropTable)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* tableName);
+          kotlin_KBoolean (*insertRow)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* tableName, kotlin_kref_godot_core_Dictionary rowDictionary);
+          kotlin_KBoolean (*insertRows)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* tableName, kotlin_kref_godot_core_GDArray rowArray);
           kotlin_KBoolean (*openDatabase)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
-          kotlin_KBoolean (*query)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* p_query);
+          kotlin_KBoolean (*query)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* queryString);
+          kotlin_kref_godot_core_GDArray (*selectRows)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* tableName, const char* conditions, kotlin_kref_godot_core_GDArray columnsArray);
+          kotlin_KBoolean (*updateRows)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* tableName, const char* conditions, kotlin_kref_godot_core_Dictionary updatedRowDictionary);
         } SQLiteWrapper;
       } godot_kotlin_sqlite;
       struct {
