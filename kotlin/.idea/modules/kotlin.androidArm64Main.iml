@@ -13,8 +13,8 @@
           </option>
           <option name="pluginClasspaths">
             <array>
-              <option value="$MAVEN_REPOSITORY$/org/godotengine/kotlin/kotlin-compiler-plugin/0.0.1-SNAPSHOT/kotlin-compiler-plugin-0.0.1-SNAPSHOT.jar" />
-              <option value="$MAVEN_REPOSITORY$/org/godotengine/kotlin/godot-annotation-processor/0.0.1-SNAPSHOT/godot-annotation-processor-0.0.1-SNAPSHOT.jar" />
+              <option value="$MAVEN_REPOSITORY$/org/godotengine/kotlin/kotlin-compiler-plugin/0.0.1/kotlin-compiler-plugin-0.0.1.jar" />
+              <option value="$MAVEN_REPOSITORY$/org/godotengine/kotlin/godot-annotation-processor/0.0.1/godot-annotation-processor-0.0.1.jar" />
               <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/de.jensklingenberg/mpapt-runtime/0.8.4/8483247abdf2e6f454ddc4aa73cfa69eb5969c54/mpapt-runtime-0.8.4.jar" />
               <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.squareup/kotlinpoet/1.5.0/a118d03f7e11e6dc5dadec7acbf376d46f15360d/kotlinpoet-1.5.0.jar" />
               <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.3.61/e91d61b7cfd9a45566b580fef18bbd5c32d505b5/kotlin-stdlib-jdk8-1.3.61.jar" />

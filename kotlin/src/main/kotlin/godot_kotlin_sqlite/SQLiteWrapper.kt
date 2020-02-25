@@ -51,6 +51,36 @@ class SQLiteWrapper() : Reference() {
     var foreignKeys : Boolean = false
     var queryResult : GDArray = GDArray()
 
+    fun testDuplicate() {
+        var outer_dict = Dictionary()
+        var duplicated_dict = Dictionary()
+        var inner_dict = Dictionary()
+
+        outer_dict["other_dictionary"] = inner_dict
+        outer_dict["random_string"] = "The sky is blue!"
+
+        inner_dict["some_other_string"] = "Sometimes the sky is also red!"
+
+        GD.print(outer_dict.toJson())
+
+        // Without any duplication.
+        duplicated_dict = outer_dict
+        outer_dict["random_string"] = "Money must flow!"
+        GD.print(duplicated_dict.toJson())
+
+        // With duplication that isn't deep.
+        duplicated_dict = outer_dict.duplicate(false)
+        outer_dict["random_string"] = "Godot is our lord and savior!"
+        GD.print(duplicated_dict.toJson())
+
+        // With duplication that isn't deep.
+        duplicated_dict = outer_dict.duplicate(true)
+        outer_dict["random_string"] = "There's a snake in my boot!"
+        inner_dict["some_other_string"] = "'The man who shot Liberty Valence' is the best Western ever made!"
+        GD.print(duplicated_dict.toJson())
+
+    }
+
     fun openDatabase() : Boolean {
         var rc = -1
         /* Add .db to the path String if not present */

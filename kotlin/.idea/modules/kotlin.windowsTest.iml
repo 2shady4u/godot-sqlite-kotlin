@@ -5,9 +5,9 @@
       <configuration version="3" platform="Native " allPlatforms="Native []" useProjectSettings="false" isTestModule="true" externalProjectId="kotlin">
         <dependsOnModuleNames>kotlin_commonTest</dependsOnModuleNames>
         <sourceSets>
-          <sourceSet>kotlin.commonMain</sourceSet>
-          <sourceSet>kotlin.windowsMain</sourceSet>
           <sourceSet>kotlin.commonTest</sourceSet>
+          <sourceSet>kotlin.windowsMain</sourceSet>
+          <sourceSet>kotlin.commonMain</sourceSet>
         </sourceSets>
         <newMppModelJpsModuleKind>COMPILATION_AND_SOURCE_SET_HOLDER</newMppModelJpsModuleKind>
         <compilerSettings />
@@ -19,7 +19,7 @@
           </option>
           <option name="pluginClasspaths">
             <array>
-              <option value="$MAVEN_REPOSITORY$/org/godotengine/kotlin/kotlin-compiler-native-plugin/0.0.1-SNAPSHOT/kotlin-compiler-native-plugin-0.0.1-SNAPSHOT.jar" />
+              <option value="$MAVEN_REPOSITORY$/org/godotengine/kotlin/kotlin-compiler-native-plugin/0.0.1/kotlin-compiler-native-plugin-0.0.1.jar" />
             </array>
           </option>
           <option name="multiPlatform" value="true" />

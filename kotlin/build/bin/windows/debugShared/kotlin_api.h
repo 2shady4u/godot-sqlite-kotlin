@@ -108,6 +108,7 @@ typedef struct {
           kotlin_KBoolean (*openDatabase)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
           kotlin_KBoolean (*query)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* queryString);
           kotlin_kref_godot_core_GDArray (*selectRows)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* tableName, const char* conditions, kotlin_kref_godot_core_GDArray columnsArray);
+          void (*testDuplicate)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz);
           kotlin_KBoolean (*updateRows)(kotlin_kref_godot_kotlin_sqlite_SQLiteWrapper thiz, const char* tableName, const char* conditions, kotlin_kref_godot_core_Dictionary updatedRowDictionary);
         } SQLiteWrapper;
       } godot_kotlin_sqlite;

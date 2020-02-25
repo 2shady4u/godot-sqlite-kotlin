@@ -13,7 +13,7 @@
           </option>
           <option name="pluginClasspaths">
             <array>
-              <option value="$MAVEN_REPOSITORY$/org/godotengine/kotlin/kotlin-compiler-native-plugin/0.0.1-SNAPSHOT/kotlin-compiler-native-plugin-0.0.1-SNAPSHOT.jar" />
+              <option value="$MAVEN_REPOSITORY$/org/godotengine/kotlin/kotlin-compiler-native-plugin/0.0.1/kotlin-compiler-native-plugin-0.0.1.jar" />
             </array>
           </option>
           <option name="multiPlatform" value="true" />
