@@ -5,6 +5,7 @@ import godot.ProjectSettings
 import godot.core.*
 import kotlinx.cinterop.*
 import sqlite3.*
+import org.godotengine.kotlin.annotation.*
 
 fun callback(closure: COpaquePointer?, argc: Int, argv: CPointer<CPointerVar<ByteVar>>?, azColName: CPointer<CPointerVar<ByteVar>>?): Int {
     val columnDictionary = Dictionary()
@@ -42,15 +43,22 @@ fun callback(closure: COpaquePointer?, argc: Int, argv: CPointer<CPointerVar<Byt
     return 0
 }
 
+@RegisterClass("addons/godot-kotlin-sqlite/bin")
 class SQLiteWrapper() : Reference() {
 
     var db : CPointer<sqlite3>? = null
+    @RegisterProperty(false, "\"default\"")
     var path : String = "default"
+    @RegisterProperty(false, "\"\"")
     var errorMessage : String = ""
+    @RegisterProperty(false, "false")
     var verboseMode : Boolean = false
+    @RegisterProperty(false, "false")
     var foreignKeys : Boolean = false
+    @RegisterProperty(false, "godot.core.GDArray()")
     var queryResult : GDArray = GDArray()
 
+    @RegisterFunction
     fun testDuplicate() {
         var outer_dict = Dictionary()
         var duplicated_dict = Dictionary()
@@ -81,6 +89,7 @@ class SQLiteWrapper() : Reference() {
 
     }
 
+    @RegisterFunction
     fun openDatabase() : Boolean {
         var rc = -1
         /* Add .db to the path String if not present */
@@ -130,6 +139,7 @@ class SQLiteWrapper() : Reference() {
         return true
     }
 
+    @RegisterFunction
     fun closeDatabase() {
         if (db != null)
         {
@@ -146,6 +156,7 @@ class SQLiteWrapper() : Reference() {
         }
     }
 
+    @RegisterFunction
     fun query(queryString : String) : Boolean {
         var zErrMsg : CPointer<ByteVar>? = null
         var rc = -1
@@ -184,6 +195,7 @@ class SQLiteWrapper() : Reference() {
         return true
     }
 
+    @RegisterFunction
     fun createTable(tableName : String, tableDictionary : Dictionary) : Boolean {
         var typeString : String
         val integerTypeString = "int"
@@ -252,6 +264,7 @@ class SQLiteWrapper() : Reference() {
         return query(queryString)
     }
 
+    @RegisterFunction
     fun dropTable(tableName : String) : Boolean {
         /* Create SQL statement */
         val queryString : String = "DROP TABLE $tableName;"
@@ -259,6 +272,7 @@ class SQLiteWrapper() : Reference() {
         return query(queryString)
     }
 
+    @RegisterFunction
     fun insertRow(tableName : String, rowDictionary : Dictionary) : Boolean {
 
         var keyString = ""
@@ -292,6 +306,7 @@ class SQLiteWrapper() : Reference() {
         return query(queryString)
     }
 
+    @RegisterFunction
     fun insertRows(tableName : String, rowArray : GDArray) : Boolean {
         val numberOfRows : Int = rowArray.size()
         for (i in 0 until numberOfRows)
@@ -309,6 +324,7 @@ class SQLiteWrapper() : Reference() {
         return true
     }
 
+    @RegisterFunction
     fun selectRows(tableName : String, conditions : String, columnsArray : GDArray) : GDArray {
         val numberOfColumns : Int = columnsArray.size()
 
@@ -339,6 +355,7 @@ class SQLiteWrapper() : Reference() {
         return queryResult
     }
 
+    @RegisterFunction
     fun updateRows(tableName : String, conditions : String, updatedRowDictionary : Dictionary) : Boolean {
 
         val numberOfKeys : Int = updatedRowDictionary.size()
@@ -370,6 +387,7 @@ class SQLiteWrapper() : Reference() {
         return query(queryString)
     }
 
+    @RegisterFunction
     fun deleteRows(tableName : String, conditions : String) : Boolean {
         /* Create SQL statement */
         var queryString = "DELETE FROM $tableName"
