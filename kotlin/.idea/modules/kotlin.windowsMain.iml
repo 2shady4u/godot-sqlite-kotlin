@@ -13,11 +13,14 @@
           <option name="languageVersion" value="1.3" />
           <option name="apiVersion" value="1.3" />
           <option name="pluginOptions">
-            <array />
+            <array>
+              <option value="plugin:GodotCompilerPlugin:library-path=addons/godot-kotlin-sqlite/bin/SQLiteWrapper.gdnlib" />
+              <option value="plugin:GodotCompilerPlugin:godot-project-path=C:\Users\piet.bronders\Documents\Gitkraken\GloomInc\godot-kotlin-sqlite\kotlin/../demo" />
+            </array>
           </option>
           <option name="pluginClasspaths">
             <array>
-              <option value="$MAVEN_REPOSITORY$/org/godotengine/kotlin/kotlin-compiler-native-plugin/0.0.1/kotlin-compiler-native-plugin-0.0.1.jar" />
+              <option value="$MAVEN_REPOSITORY$/org/godotengine/kotlin/kotlin-compiler-native-plugin/0.0.2/kotlin-compiler-native-plugin-0.0.2.jar" />
             </array>
           </option>
           <option name="multiPlatform" value="true" />

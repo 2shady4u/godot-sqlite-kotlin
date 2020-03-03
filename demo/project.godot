@@ -19,6 +19,10 @@ config/name="SQLite Demo"
 run/main_scene="res://Control.tscn"
 config/icon="res://icon.png"
 
+[logging]
+
+file_logging/enable_file_logging=true
+
 [rendering]
 
 quality/driver/driver_name="GLES2"

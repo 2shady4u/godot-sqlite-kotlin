@@ -1,11 +1,16 @@
 package godot_kotlin_sqlite
 
-import godot.Reference
+import cnames.structs.sqlite3_stmt
+import godot.File
+import godot.JSON
 import godot.ProjectSettings
+import godot.Reference
 import godot.core.*
 import kotlinx.cinterop.*
+import org.godotengine.kotlin.annotation.RegisterClass
+import org.godotengine.kotlin.annotation.RegisterFunction
+import org.godotengine.kotlin.annotation.RegisterProperty
 import sqlite3.*
-import org.godotengine.kotlin.annotation.*
 
 fun callback(closure: COpaquePointer?, argc: Int, argv: CPointer<CPointerVar<ByteVar>>?, azColName: CPointer<CPointerVar<ByteVar>>?): Int {
     val columnDictionary = Dictionary()
@@ -43,8 +48,14 @@ fun callback(closure: COpaquePointer?, argc: Int, argv: CPointer<CPointerVar<Byt
     return 0
 }
 
+data class TableData(
+        var name: String = "",
+        var sql: String = "",
+        var rowArray: GDArray = GDArray()
+)
+
 @RegisterClass("addons/godot-kotlin-sqlite/bin")
-class SQLiteWrapper() : Reference() {
+class SQLiteWrapper : Reference() {
 
     var db : CPointer<sqlite3>? = null
     @RegisterProperty(false, "\"default\"")
@@ -57,37 +68,6 @@ class SQLiteWrapper() : Reference() {
     var foreignKeys : Boolean = false
     @RegisterProperty(false, "godot.core.GDArray()")
     var queryResult : GDArray = GDArray()
-
-    @RegisterFunction
-    fun testDuplicate() {
-        var outer_dict = Dictionary()
-        var duplicated_dict = Dictionary()
-        var inner_dict = Dictionary()
-
-        outer_dict["other_dictionary"] = inner_dict
-        outer_dict["random_string"] = "The sky is blue!"
-
-        inner_dict["some_other_string"] = "Sometimes the sky is also red!"
-
-        GD.print(outer_dict.toJson())
-
-        // Without any duplication.
-        duplicated_dict = outer_dict
-        outer_dict["random_string"] = "Money must flow!"
-        GD.print(duplicated_dict.toJson())
-
-        // With duplication that isn't deep.
-        duplicated_dict = outer_dict.duplicate(false)
-        outer_dict["random_string"] = "Godot is our lord and savior!"
-        GD.print(duplicated_dict.toJson())
-
-        // With duplication that isn't deep.
-        duplicated_dict = outer_dict.duplicate(true)
-        outer_dict["random_string"] = "There's a snake in my boot!"
-        inner_dict["some_other_string"] = "'The man who shot Liberty Valence' is the best Western ever made!"
-        GD.print(duplicated_dict.toJson())
-
-    }
 
     @RegisterFunction
     fun openDatabase() : Boolean {
@@ -136,6 +116,138 @@ class SQLiteWrapper() : Reference() {
             }
         }
 
+        return true
+    }
+
+    @RegisterFunction
+    fun importFromJSON(importPath : String) : Boolean
+    {
+
+        /* Add .json to the import_path String if not present */
+        val ending = ".json"
+        var extImportPath = importPath
+        if (!extImportPath.endsWith(ending))
+        {
+            extImportPath += ending
+        }
+        /* Find the real path */
+        extImportPath = ProjectSettings.globalizePath(extImportPath.trim())
+
+        /* CharString object goes out-of-scope when not assigned explicitly */
+        /* NOT REQUIRED IN KOTLIN */
+
+        /* Open the json-file and parse its contents using the Godot JSON singleton */
+        val file = File()
+        if (file.open(extImportPath, File.WRITE) != GodotError.OK)
+        {
+            GD.print("GDSQLite Error: Failed to open specified json-file ($importPath)")
+            return false
+        }
+        val jsonString : String = file.getAsText()
+        file.close()
+
+        /* Attempt to open the json and, if unsuccessful, throw a parse error specifying the erroneous line */
+        val result = JSON.parse(jsonString)
+        if (result.getError() != GodotError.OK)
+        {
+            /* Throw a parsing error */
+            GD.print("GDSQLite Error: parsing failed! reason: " + result.getErrorString() + ", at line: " + result.getErrorLine())
+            return false
+        }
+        val importJSON : GDArray = result.getResult().toGDArray()
+
+        /* Check if the database is open and, if not, attempt to open it */
+        if (db == null)
+        {
+            /* Open the database using the open_db method declared above */
+            openDatabase()
+        }
+
+        /* Find all tables that are present in this database */
+        query("SELECT name FROM sqlite_master WHERE type = 'table';")
+        val oldTableNames = GDArray()
+        val oldNumberOfTables : Int = queryResult.size()
+        for (i in 0 until oldNumberOfTables)
+        {
+            val tableDictionary : Dictionary = queryResult[i]?.toDictionary()!!
+            oldTableNames.append(tableDictionary["name"]!!)
+        }
+
+        val tablesToImport = mutableListOf<TableData>()
+        /* Validate the json structure and populate the tables_to_import vector */
+        if (!validateJSON(importJSON, tablesToImport))
+        {
+            return false
+        }
+
+        /* Drop all old tables present in the database */
+        for (i in 0 until oldNumberOfTables)
+        {
+            dropTable(oldTableNames[i].toString())
+        }
+        /* Add all new tables and fill them up with all the rows */
+        for (table in tablesToImport)
+        {
+            query(table.sql)
+            insertRows(table.name, table.rowArray)
+        }
+        return true
+    }
+
+    @RegisterFunction
+    fun exportToJSON(exportPath : String) : Boolean
+    {
+        /* Get all names and sql templates for all tables present in the database */
+        query("SELECT name,sql FROM sqlite_master WHERE type = 'table';")
+        val numberOfTables : Int = queryResult.size()
+        val databaseArray = GDArray()
+        for (i in 0 until numberOfTables)
+        {
+            /* Deep copy of the Dictionary is required as Dictionaries are passed with reference */
+            /* Without doing this, future queries would overwrite the table information */
+            databaseArray.append(Variant(queryResult[i]?.toDictionary()?.duplicate(true)!!))
+        }
+
+        /* Add .json to the import_path String if not present */
+        val ending = ".json"
+        var extExportPath = exportPath
+        if (!extExportPath.endsWith(ending))
+        {
+            extExportPath += ending
+        }
+        /* Find the real path */
+        extExportPath = ProjectSettings.globalizePath(extExportPath.trim())
+
+        val file = File()
+        if (file.open(extExportPath, File.WRITE) != GodotError.OK)
+        {
+            GD.print("GDSQLite Error: Can't open specified json-file, file does not exist or is locked")
+            return false
+        }
+
+        /* Construct a Dictionary for each table, convert it to JSON and write it to file */
+        var fileBuffer = "["
+        for (i in 0 until numberOfTables)
+        {
+            val tableDictionary : Dictionary = databaseArray[i]?.toDictionary()!!
+            var jsonString : String
+            var queryString : String
+
+            queryString = "SELECT * FROM " + tableDictionary["name"].toString() + ";"
+            query(queryString)
+            tableDictionary["row_array"] = queryResult
+
+            jsonString = JSON.print(Variant(tableDictionary))
+            /* CharString object goes out-of-scope when not assigned explicitly */
+            fileBuffer += jsonString
+            if (i != numberOfTables - 1)
+            {
+                fileBuffer += ","
+            }
+        }
+        fileBuffer += "]"
+        file.storeString(fileBuffer)
+        file.close()
         return true
     }
 
@@ -267,7 +379,7 @@ class SQLiteWrapper() : Reference() {
     @RegisterFunction
     fun dropTable(tableName : String) : Boolean {
         /* Create SQL statement */
-        val queryString : String = "DROP TABLE $tableName;"
+        val queryString = "DROP TABLE $tableName;"
 
         return query(queryString)
     }
@@ -335,7 +447,8 @@ class SQLiteWrapper() : Reference() {
             if (columnsArray[i]?.getType() != Variant.Type.STRING)
             {
                 GD.print("GDSQLite Error: All elements of the Array should be of type String")
-                return queryResult
+                return GDArray()
+                //return queryResult
             }
             queryString += columnsArray[i].toString()
 
@@ -344,7 +457,7 @@ class SQLiteWrapper() : Reference() {
                 queryString += ","
             }
         }
-        queryString += " from $tableName"
+        queryString += " FROM $tableName"
         if (conditions.isNotEmpty())
         {
             queryString += " WHERE $conditions"
@@ -399,6 +512,52 @@ class SQLiteWrapper() : Reference() {
         queryString += ";"
 
         return query(queryString)
+    }
+
+    private fun validateJSON(importJSON : GDArray, tablesToImport : MutableList<TableData>) : Boolean {
+        /* Start going through all the tables and checking their validity */
+        val numberOfTables : Int = importJSON.size()
+        for (i in 0 until numberOfTables - 1)
+        {
+
+            /* Create a new table_struct */
+            val newTable = TableData ()
+            val tempDictionary : Dictionary = importJSON[i]?.toDictionary()!!
+            /* Get the name of the table */
+            if (!tempDictionary.has("name"))
+            {
+                /* Did not find the necessary key! */
+                GD.print("GDSQlite Error: Did not find required key \"name\" in the supplied json-file")
+                return false
+            }
+            newTable.name = tempDictionary["name"].toString()
+
+            /* Extract the sql template for generating the table */
+            if (!tempDictionary.has("sql"))
+            {
+                /* Did not find the necessary key! */
+                GD.print("GDSQlite Error: Did not find required key \"sql\" in the supplied json-file")
+                return false
+            }
+            newTable.sql = tempDictionary["sql"].toString()
+
+            if (!tempDictionary.has("row_array"))
+            {
+                /* Did not find the necessary key! */
+                GD.print("GDSQlite Error: Did not find required key \"row_array\" in the supplied json-file")
+                return false
+            }
+            if (tempDictionary["row_array"]?.getType()  != Variant.Type.ARRAY)
+            {
+                GD.print("GDSQlite Error: The value of the key \"row_array\" should consist of an array of rows")
+                return false
+            }
+            newTable.rowArray = tempDictionary["row_array"]?.toGDArray()!!
+
+            /* Add the table to the new tables vector */
+            tablesToImport.add(tablesToImport.size, newTable)
+        }
+        return true
     }
 
 }
