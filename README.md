@@ -1,4 +1,6 @@
-# godot-kotlin-sqlite
+![Godot SQLite Kotlin banner](icon/godot-sqlite-kotlin-banner.png?raw=true "Godot SQLite Kotlin Banner")
+
+# godot-sqlite-kotlin
 
 ## !!!DISCLAIMER !!! WORK IN PROGRESS!!!
 
