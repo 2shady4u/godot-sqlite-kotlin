@@ -11,7 +11,7 @@ buildscript {
     }
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.61")
-        classpath("org.godotengine.kotlin:godot-gradle-plugin:1.0.1")
+        classpath("org.godotengine.kotlin:godot-gradle-plugin:0.1.1-3.2")
     }
 }
 
@@ -50,8 +50,8 @@ fun configureTargetAction(kotlinTarget: @ParameterName(name = "target") org.jetb
             }
             this.target.compilations.all {
                 dependencies {
-                    implementation("org.godotengine.kotlin:godot-library:1.0.0")
-                    implementation("org.godotengine.kotlin:annotations:0.0.2")
+                    implementation("org.godotengine.kotlin:godot-library:0.1.1-3.2")
+                    implementation("org.godotengine.kotlin:annotations:0.1.1-3.2")
                 }
             }
             if (project.hasProperty("iosSigningIdentity") && this.target.name == "iosArm64") {

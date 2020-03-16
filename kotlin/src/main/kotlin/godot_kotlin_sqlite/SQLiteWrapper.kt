@@ -122,7 +122,7 @@ class SQLiteWrapper : Reference() {
     @RegisterFunction
     fun importFromJSON(importPath : String) : Boolean
     {
-
+        println("number 1")
         /* Add .json to the import_path String if not present */
         val ending = ".json"
         var extImportPath = importPath
@@ -132,20 +132,23 @@ class SQLiteWrapper : Reference() {
         }
         /* Find the real path */
         extImportPath = ProjectSettings.globalizePath(extImportPath.trim())
-
+        println("number 2")
         /* CharString object goes out-of-scope when not assigned explicitly */
         /* NOT REQUIRED IN KOTLIN */
 
         /* Open the json-file and parse its contents using the Godot JSON singleton */
         val file = File()
-        if (file.open(extImportPath, File.WRITE) != GodotError.OK)
+        println(extImportPath)
+        if (file.open(extImportPath, File.READ) != GodotError.OK)
         {
             GD.print("GDSQLite Error: Failed to open specified json-file ($importPath)")
             return false
         }
+        println("number 25")
         val jsonString : String = file.getAsText()
+        println("number 275")
         file.close()
-
+        println("number 3")
         /* Attempt to open the json and, if unsuccessful, throw a parse error specifying the erroneous line */
         val result = JSON.parse(jsonString)
         if (result.getError() != GodotError.OK)
@@ -154,6 +157,7 @@ class SQLiteWrapper : Reference() {
             GD.print("GDSQLite Error: parsing failed! reason: " + result.getErrorString() + ", at line: " + result.getErrorLine())
             return false
         }
+        println("number 4")
         val importJSON : GDArray = result.getResult().toGDArray()
 
         /* Check if the database is open and, if not, attempt to open it */
@@ -163,6 +167,7 @@ class SQLiteWrapper : Reference() {
             openDatabase()
         }
 
+        println("number 5")
         /* Find all tables that are present in this database */
         query("SELECT name FROM sqlite_master WHERE type = 'table';")
         val oldTableNames = GDArray()
@@ -179,12 +184,13 @@ class SQLiteWrapper : Reference() {
         {
             return false
         }
-
+        println("number 6")
         /* Drop all old tables present in the database */
         for (i in 0 until oldNumberOfTables)
         {
             dropTable(oldTableNames[i].toString())
         }
+        println("number 7")
         /* Add all new tables and fill them up with all the rows */
         for (table in tablesToImport)
         {
@@ -465,7 +471,7 @@ class SQLiteWrapper : Reference() {
         queryString += ";"
 
         query(queryString)
-        return queryResult
+        return queryResult.duplicate(true)
     }
 
     @RegisterFunction
